@@ -1,6 +1,8 @@
 package com.kata.roman;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,10 +20,14 @@ class ToRomanNumeralsConverterTests {
     M: 1000
      */
 
-    @Test
-    void should_convert_simple_symbols() {
-        assertThat(converter.convert(1))
-                .isEqualTo("I");
+    @ParameterizedTest
+    @CsvSource({
+            "1, I",
+            "5, V"
+    })
+    void should_convert_simple_symbols(int arabic, String symbol){
+        assertThat(converter.convert(arabic))
+                .isEqualTo(symbol);
     }
 
     /*
