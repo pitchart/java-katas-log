@@ -9,21 +9,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ToRomanNumeralsConverterTests {
     private final ToRomanNumeralsConverter converter = new ToRomanNumeralsConverter();
 
-    /*
-    Test "single symbols"
-    I: 1
-    V: 5
-    X: 10
-    L: 50
-    C: 100
-    D: 500
-    M: 1000
-     */
-
     @ParameterizedTest
     @CsvSource({
             "1, I",
-            "5, V"
+            "5, V",
+            "10, X",
+            "50, L",
+            "100, C",
+            "500, D",
+            "1000, M"
     })
     void should_convert_simple_symbols(int arabic, String symbol){
         assertThat(converter.convert(arabic))
