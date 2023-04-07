@@ -8,13 +8,15 @@ public class Elections {
     List<String> officialCandidates = new ArrayList<>();
     ArrayList<Integer> votesWithoutDistricts = new ArrayList<>();
     Map<String, ArrayList<Integer>> votesWithDistricts;
-    private Map<String, List<String>> list;
+    private Map<String, List<String>> candidatesByDistrict;
     private boolean withDistrict;
+    ElectionsWithoutDistrict electionsWithoutDistrict;
 
 
-    public Elections(Map<String, List<String>> list, boolean withDistrict) {
-        this.list = list;
+    public Elections(Map<String, List<String>> candidatesByDistrict, boolean withDistrict) {
+        this.candidatesByDistrict = candidatesByDistrict;
         this.withDistrict = withDistrict;
+        this.electionsWithoutDistrict = new ElectionsWithoutDistrict(candidatesByDistrict);
 
         votesWithDistricts = new HashMap<>();
         votesWithDistricts.put("District 1", new ArrayList<>());
@@ -23,6 +25,7 @@ public class Elections {
     }
 
     public void addCandidate(String candidate) {
+        this.electionsWithoutDistrict.addCandidate(candidate);
         officialCandidates.add(candidate);
         votes.add(candidate);
         votesWithoutDistricts.add(0);
@@ -35,6 +38,7 @@ public class Elections {
         if (withDistrict) {
             voteForWithDistrict(candidate, electorDistrict);
         } else {
+            this.electionsWithoutDistrict.voteFor(elector, candidate, electorDistrict);
             voteForWithoutDistrict(candidate);
         }
     }
@@ -66,69 +70,50 @@ public class Elections {
     }
 
     public Map<String, String> results() {
+        if (!withDistrict) {
+            return this.electionsWithoutDistrict.results();
+        }
         Map<String, String> results = new HashMap<>();
         Integer nbVotes = 0;
         Integer nullVotes = 0;
         Integer blankVotes = 0;
         int nbValidVotes = 0;
 
-        if (withDistrict) {
-            nbVotes = countTotalVotesWithDistricts();
+        nbVotes = countTotalVotesWithDistricts();
 
-            nbValidVotes = countTotalValidVotesWithDistricts();
+        nbValidVotes = countTotalValidVotesWithDistricts();
 
-            Map<String, Integer> officialCandidatesResult = new HashMap<>();
-            officialCandidates.forEach(officialCandidate -> officialCandidatesResult.put(officialCandidate,0));
+        Map<String, Integer> officialCandidatesResult = new HashMap<>();
+        officialCandidates.forEach(officialCandidate -> officialCandidatesResult.put(officialCandidate,0));
 
-            for (Map.Entry<String, ArrayList<Integer>> entry : votesWithDistricts.entrySet()) {
-                ArrayList<Float> districtResult = new ArrayList<>();
-                ArrayList<Integer> districtVotes = entry.getValue();
-                for (int i = 0; i < districtVotes.size(); i++) {
-                    float candidateResult = 0;
-                    if (nbValidVotes != 0)
-                        candidateResult = ((float)districtVotes.get(i) * 100) / nbValidVotes;
-                    String candidate = votes.get(i);
-                    if (isOfficialCandidate(candidate)) {
-                        districtResult.add(candidateResult);
-                    } else {
-                        if (votes.get(i).isEmpty()) {
-                            blankVotes += districtVotes.get(i);
-                        } else {
-                            nullVotes += districtVotes.get(i);
-                        }
-                    }
-                }
-                int districtWinnerIndex = 0;
-                for (int i = 1; i < districtResult.size(); i++) {
-                    if (districtResult.get(districtWinnerIndex) < districtResult.get(i))
-                        districtWinnerIndex = i;
-                }
-                officialCandidatesResult.put(votes.get(districtWinnerIndex), officialCandidatesResult.get(votes.get(districtWinnerIndex)) + 1);
-            }
-            for (int i = 0; i < officialCandidatesResult.size(); i++) {
-                Float ratioCandidate = ((float) officialCandidatesResult.get(votes.get(i))) / officialCandidatesResult.size() * 100;
-                results.put(votes.get(i), String.format(Locale.FRENCH, "%.2f%%", ratioCandidate));
-            }
-        } else {
-            nbVotes = votesWithoutDistricts.stream().reduce(0, Integer::sum);
-            for (int i = 0; i < officialCandidates.size(); i++) {
-                int index = votes.indexOf(officialCandidates.get(i));
-                nbValidVotes += votesWithoutDistricts.get(index);
-            }
-
-            for (int i = 0; i < votesWithoutDistricts.size(); i++) {
-                Float candidatResult = ((float)votesWithoutDistricts.get(i) * 100) / nbValidVotes;
+        for (Map.Entry<String, ArrayList<Integer>> entry : votesWithDistricts.entrySet()) {
+            ArrayList<Float> districtResult = new ArrayList<>();
+            ArrayList<Integer> districtVotes = entry.getValue();
+            for (int i = 0; i < districtVotes.size(); i++) {
+                float candidateResult = 0;
+                if (nbValidVotes != 0)
+                    candidateResult = ((float)districtVotes.get(i) * 100) / nbValidVotes;
                 String candidate = votes.get(i);
                 if (isOfficialCandidate(candidate)) {
-                    results.put(candidate, String.format(Locale.FRENCH, "%.2f%%", candidatResult));
+                    districtResult.add(candidateResult);
                 } else {
-                    if (votes.get(i).isEmpty()) {
-                        blankVotes += votesWithoutDistricts.get(i);
+                    if (voteIsBlank(i)) {
+                        blankVotes += districtVotes.get(i);
                     } else {
-                        nullVotes += votesWithoutDistricts.get(i);
+                        nullVotes += districtVotes.get(i);
                     }
                 }
             }
+            int districtWinnerIndex = 0;
+            for (int i = 1; i < districtResult.size(); i++) {
+                if (districtResult.get(districtWinnerIndex) < districtResult.get(i))
+                    districtWinnerIndex = i;
+            }
+            officialCandidatesResult.put(votes.get(districtWinnerIndex), officialCandidatesResult.get(votes.get(districtWinnerIndex)) + 1);
+        }
+        for (int i = 0; i < officialCandidatesResult.size(); i++) {
+            Float ratioCandidate = ((float) officialCandidatesResult.get(votes.get(i))) / officialCandidatesResult.size() * 100;
+            results.put(votes.get(i), String.format(Locale.FRENCH, "%.2f%%", ratioCandidate));
         }
 
         float blankResult = ((float)blankVotes * 100) / nbVotes;
@@ -137,13 +122,17 @@ public class Elections {
         float nullResult = ((float)nullVotes * 100) / nbVotes;
         results.put("Null", String.format(Locale.FRENCH, "%.2f%%", nullResult));
 
-        int nbElectors = list.values().stream().map(List::size).reduce(0, Integer::sum);
+        int nbElectors = candidatesByDistrict.values().stream().map(List::size).reduce(0, Integer::sum);
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(2);
         float abstentionResult = 100 - ((float) nbVotes * 100 / nbElectors);
         results.put("Abstention", String.format(Locale.FRENCH, "%.2f%%", abstentionResult));
 
         return results;
+    }
+
+    private boolean voteIsBlank(int i) {
+        return votes.get(i).isEmpty();
     }
 
     private int countTotalValidVotesWithDistricts() {

@@ -15,7 +15,7 @@ class ElectionsTest {
                 "District 2", Arrays.asList("Jerry", "Simon"),
                 "District 3", Arrays.asList("Johnny", "Matt", "Carole")
         );
-        Elections elections = new Elections(list, false);
+        ElectionsWithoutDistrict elections = new ElectionsWithoutDistrict(list);
         elections.addCandidate("Michel");
         elections.addCandidate("Jerry");
         elections.addCandidate("Johnny");
