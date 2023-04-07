@@ -8,3 +8,11 @@ Add two new features to avoid fraud
 ## Steps
 Add approval tests as golden master
 Code new feature using TDD and remove approval tests
+
+
+## Refactos
+
+- Map candidates with number votes
+- Class vote
+- DTO results : nbVotes, nullVotes, blankVotes
+- Class disctricts / without disctricts
