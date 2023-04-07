@@ -1,5 +1,6 @@
 package com.kata.elections;
 
+import org.approvaltests.Approvals;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -30,7 +31,7 @@ class ElectionsTest {
 
         var results = elections.results();
 
-        //todo : add approval tests here
+        Approvals.verify(results);
     }
 
     @Test
@@ -57,6 +58,6 @@ class ElectionsTest {
 
         var results = elections.results();
 
-        //todo : add approval tests here
+        Approvals.verify(results);
     }
 }
