@@ -10,12 +10,12 @@ import java.util.Map;
 class ElectionsTest {
     @Test
     void electionWithoutDistricts() {
-        Map<String, List<String>> list = Map.of(
+        Map<String, List<String>> electoralList = Map.of(
                 "District 1", Arrays.asList("Bob", "Anna", "Jess", "July"),
                 "District 2", Arrays.asList("Jerry", "Simon"),
                 "District 3", Arrays.asList("Johnny", "Matt", "Carole")
         );
-        ElectionsWithoutDistrict elections = new ElectionsWithoutDistrict(list);
+        ElectionsWithoutDistrict elections = new ElectionsWithoutDistrict(electoralList);
         elections.addCandidate("Michel");
         elections.addCandidate("Jerry");
         elections.addCandidate("Johnny");
