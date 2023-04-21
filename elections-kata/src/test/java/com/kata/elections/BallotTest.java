@@ -16,7 +16,6 @@ public class BallotTest {
 		Ballot blankBallot= new Ballot("");
 
 		assertThat(blankBallot.isBlank()).isTrue();
-
 	}
 
 	@Test
@@ -24,7 +23,6 @@ public class BallotTest {
 		Ballot ballotWithContent= new Ballot("Barack Obama");
 
 		assertThat(ballotWithContent.isBlank()).isFalse();
-
 	}
 
 
