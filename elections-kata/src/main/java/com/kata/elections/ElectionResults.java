@@ -1,7 +1,6 @@
 package com.kata.elections;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,7 +14,7 @@ public class ElectionResults {
 
 	private final Map<String, Integer> votesByCandidate;
 	private final Integer nbElectors;
-	private final Integer nbVotes;
+	public Integer nbVotes;
 	public Integer nbValidVotes = 0;
 	public Integer nullVotes = 0;
 	public Integer blankVotes = 0;
@@ -27,9 +26,12 @@ public class ElectionResults {
 
 	}
 
+	public void addVote(Ballot ballot) {
+		votesByCandidate.put(ballot.content(), votesByCandidate.get(ballot.content()) + 1);
+	}
 
-	public void setCandidateScore(String candidate, Integer integer) {
-		votesByCandidate.put(candidate, integer);
+	public Map<String, Integer> getVotesByCandidate() {
+		return votesByCandidate;
 	}
 
 }

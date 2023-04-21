@@ -38,52 +38,48 @@ public class ElectionsWithoutDistrict {
     }
 
     public Map<String, String> results() {
+        ElectionResults electionResult = countVotes();
+
+        return formatResults(electionResult);
+    }
+
+    private ElectionResults countVotes() {
         ElectionResults electionResult = new ElectionResults(officialCandidates, electoralListByDistrict, votesWithoutDistricts);
-        Map<String, String> formattedResults = new HashMap<>();
-        Integer nbVotes = 0;
-        Integer nullVotes = 0;
-        int nbValidVotes = 0;
 
-        nbVotes = ballotBox.size();
-        for (int i = 0; i < officialCandidates.size(); i++) {
-            int index = votes.indexOf(officialCandidates.get(i));
-            nbValidVotes += votesWithoutDistricts.get(index);
-            electionResult.nbValidVotes += votesWithoutDistricts.get(index);
-        }
+        electionResult.nbVotes = ballotBox.size();
 
-        for (int i = 0; i < votesWithoutDistricts.size(); i++) {
-            Float candidatResult = ((float) votesWithoutDistricts.get(i) * 100) / nbValidVotes;
-            String candidate = votes.get(i);
-            if (isOfficialCandidate(candidate)) {
-                formattedResults.put(candidate, String.format(Locale.FRENCH, "%.2f%%", candidatResult));
-                electionResult.setCandidateScore(candidate, votesWithoutDistricts.get(i));
-            } else {
-                if (!voteIsBlank(i)) {
-                    nullVotes += votesWithoutDistricts.get(i);
-                    electionResult.nullVotes += votesWithoutDistricts.get(i);
-                }
-            }
-        }
+        electionResult.nbValidVotes = (int)ballotBox.stream().filter(vote -> isValidVote(vote)).count();
 
+        ballotBox.stream().filter(vote -> isValidVote(vote)).forEach(electionResult::addVote);
         electionResult.blankVotes = (int)ballotBox.stream().filter(Ballot::isBlank).count();
+        electionResult.nullVotes = (int)ballotBox.stream().filter(vote -> isNullVote(vote)).count();
+        return electionResult;
+    }
 
-        float blankResult = ((float) electionResult.blankVotes * 100) / nbVotes;
+    private Map<String, String> formatResults(ElectionResults electionResult) {
+        Map<String, String> formattedResults = new HashMap<>();
+        electionResult.getVotesByCandidate().forEach((candidate, vote) -> formattedResults.put(candidate, String.format(Locale.FRENCH, "%.2f%%", (float)(vote * 100) / electionResult.nbValidVotes)));
+
+        float blankResult = ((float) electionResult.blankVotes * 100) / electionResult.nbVotes;
         formattedResults.put("Blank", String.format(Locale.FRENCH, "%.2f%%", blankResult));
 
-        float nullResult = ((float) nullVotes * 100) / nbVotes;
+        float nullResult = ((float) electionResult.nullVotes * 100) / electionResult.nbVotes;
         formattedResults.put("Null", String.format(Locale.FRENCH, "%.2f%%", nullResult));
 
         int nbElectors = electoralListByDistrict.values().stream().map(List::size).reduce(0, Integer::sum);
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(2);
-        float abstentionResult = 100 - ((float) nbVotes * 100 / nbElectors);
+        float abstentionResult = 100 - ((float) electionResult.nbVotes * 100 / nbElectors);
         formattedResults.put("Abstention", String.format(Locale.FRENCH, "%.2f%%", abstentionResult));
-
         return formattedResults;
     }
 
-    private boolean voteIsBlank(int i) {
-        return votes.get(i).isEmpty();
+    private boolean isValidVote(Ballot vote) {
+        return officialCandidates.contains(vote.content());
+    }
+
+    private boolean isNullVote(Ballot vote) {
+        return !(vote.isBlank() || isValidVote(vote));
     }
 
     private boolean isOfficialCandidate(String candidate) {

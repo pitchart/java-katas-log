@@ -19,4 +19,6 @@ public class Ballot {
 	public boolean isBlank() {
 		return StringUtils.isBlank(content);
 	}
+
+	public String content() { return content;	}
 }
