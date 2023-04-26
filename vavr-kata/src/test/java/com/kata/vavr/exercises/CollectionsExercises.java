@@ -4,12 +4,14 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Vector;
 import io.vavr.control.Option;
+import org.assertj.core.util.introspection.PropertyOrFieldSupport;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.INTEGER;
 
 /**
  * By doing these exercises you should have learned about the following APIs.
@@ -51,7 +53,7 @@ class CollectionsExercises extends PetDomainKata {
     void getPeopleWithCats() {
         // Replace null, with a positive filtering method on Seq.
         Seq<Person> peopleWithCats = this.people
-            .filter(personHasCat());
+                .filter(personHasCat());
 
         assertThat(peopleWithCats).hasSize(2);
     }
@@ -60,7 +62,7 @@ class CollectionsExercises extends PetDomainKata {
     void getPeopleWithoutCats() {
         // Replace null, with a negative filtering method on Seq.
         Seq<Person> peopleWithoutCats = this.people
-            .reject(personHasCat());
+                .reject(personHasCat());
 
         assertThat(peopleWithoutCats).hasSize(6);
     }
@@ -69,7 +71,7 @@ class CollectionsExercises extends PetDomainKata {
     void doAnyPeopleHaveCats() {
         //replace null with a Predicate lambda which checks for PetType.CAT
         boolean doAnyPeopleHaveCats = this.people
-            .exists(personHasCat());
+                .exists(personHasCat());
         assertThat(doAnyPeopleHaveCats).isTrue();
     }
 
@@ -80,45 +82,40 @@ class CollectionsExercises extends PetDomainKata {
     @Test
     void doAllPeopleHavePets() {
         //replace with a method call send to this.people that checks if all people have pets
-        Predicate<Person> predicate = null;
-        boolean result = people.forAll(predicate);
+        boolean result = people.forAll(Person::isPetPerson);
+
         assertThat(result).isFalse();
     }
 
     @Test
     void howManyPeopleHaveCats() {
         // replace 0 with the correct answer
-        int count = 0;
+        int count = people.count(personHasCat());
         assertThat(count).isEqualTo(2);
     }
 
     @Test
     void getPeopleWithPets() {
         // replace with only the pets owners
-        Seq<Person> petPeople = null;
+        Seq<Person> petPeople = people.filter(Person::isPetPerson);
         assertThat(petPeople).hasSize(7);
     }
 
     @Test
     void getAllPetTypesOfAllPeople() {
         // retrieve all pet types owned by the people
-        Seq<PetType> petTypes = null;
-
+        Seq<PetType> petTypes = people.flatMap(person -> person.getPets().map(Pet::getType)).distinct();
         assertThat(petTypes)
                 .isEqualTo(Vector.of(PetType.CAT, PetType.DOG, PetType.SNAKE, PetType.BIRD, PetType.TURTLE, PetType.HAMSTER));
     }
 
     @Test
-    void howManyPersonHaveCats() {
-        // count the number of persons who owns cats
-        int count = 0;
-        assertThat(count).isEqualTo(2);
-    }
-
-    @Test
     void whoOwnsTheYoungestPet() {
         // find the person who owns the youngest pet
-        Option<Person> person = null;
+        Option<Person> person =
+                people.filter(Person::isPetPerson)
+                        .minBy(person1 -> person1.getPets().map(Pet::getAge).min().getOrElse(99999));
+
         assertThat(person.get().getFirstName()).isEqualTo("Jake");
     }
 
