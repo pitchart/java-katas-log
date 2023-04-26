@@ -30,7 +30,7 @@ class CollectionsExercises extends PetDomainKata {
     @Test
     void getFirstNamesOfAllPeople() {
         // Replace null, with a transformation method on Seq.
-        Seq<String> firstNames = null;
+        Seq<String> firstNames = this.people.map(Person::getFirstName);
 
         Seq<String> expectedFirstNames = Vector.of("Mary", "Bob", "Ted", "Jake", "Barry", "Terry", "Harry", "John");
         assertThat(firstNames).isEqualTo(expectedFirstNames);
@@ -42,7 +42,7 @@ class CollectionsExercises extends PetDomainKata {
         Seq<Pet> pets = person.getPets();
 
         // Replace null, with a transformation method on Seq.
-        Seq<String> names = null;
+        Seq<String> names = pets.map(Pet::getName);
 
         assertThat(names.mkString()).isEqualTo("Tabby");
     }
@@ -50,7 +50,8 @@ class CollectionsExercises extends PetDomainKata {
     @Test
     void getPeopleWithCats() {
         // Replace null, with a positive filtering method on Seq.
-        Seq<Person> peopleWithCats = null;
+        Seq<Person> peopleWithCats = this.people
+            .filter(personHasCat());
 
         assertThat(peopleWithCats).hasSize(2);
     }
@@ -58,15 +59,22 @@ class CollectionsExercises extends PetDomainKata {
     @Test
     void getPeopleWithoutCats() {
         // Replace null, with a negative filtering method on Seq.
-        Seq<Person> peopleWithoutCats = null;
+        Seq<Person> peopleWithoutCats = this.people
+            .reject(personHasCat());
+
         assertThat(peopleWithoutCats).hasSize(6);
     }
 
     @Test
     void doAnyPeopleHaveCats() {
         //replace null with a Predicate lambda which checks for PetType.CAT
-        boolean doAnyPeopleHaveCats = false;
+        boolean doAnyPeopleHaveCats = this.people
+            .exists(personHasCat());
         assertThat(doAnyPeopleHaveCats).isTrue();
+    }
+
+    private Predicate<Person> personHasCat() {
+        return person -> person.hasPetType(PetType.CAT);
     }
 
     @Test
