@@ -37,7 +37,8 @@ class ToRomanNumeralsConverterTests {
             "6, VI",
             "11, XI",
             "1001, MI",
-            "1551, MDLI"
+            "1551, MDLI",
+            "1666, MDCLXVI"
     })
     void should_convert_simple_concatenation(int arabic, String symbol){
         assertThat(converter.convert(arabic))
@@ -52,6 +53,15 @@ class ToRomanNumeralsConverterTests {
     33: XXXIII
     3888: MMMDCCCLXXXVIII
      */
+    @ParameterizedTest
+    @CsvSource({
+            "2, II",
+            "3: III"
+    })
+    void should_convert_repeating_symbols(int arabic, String symbol){
+        assertThat(converter.convert(arabic))
+                .isEqualTo(symbol);
+    }
 
     /*
     Test "substract symbols"
