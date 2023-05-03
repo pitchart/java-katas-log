@@ -36,7 +36,8 @@ class ToRomanNumeralsConverterTests {
     @CsvSource({
             "6, VI",
             "11, XI",
-            "1001, MI"
+            "1001, MI",
+            "1551, MDLI"
     })
     void should_convert_simple_concatenation(int arabic, String symbol){
         assertThat(converter.convert(arabic))
