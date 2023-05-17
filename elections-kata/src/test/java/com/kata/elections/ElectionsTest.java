@@ -1,5 +1,6 @@
 package com.kata.elections;
 
+import org.approvaltests.Approvals;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -9,12 +10,12 @@ import java.util.Map;
 class ElectionsTest {
     @Test
     void electionWithoutDistricts() {
-        Map<String, List<String>> list = Map.of(
+        Map<String, List<String>> electors = Map.of(
                 "District 1", Arrays.asList("Bob", "Anna", "Jess", "July"),
                 "District 2", Arrays.asList("Jerry", "Simon"),
                 "District 3", Arrays.asList("Johnny", "Matt", "Carole")
         );
-        Elections elections = new Elections(list, false);
+        Elections elections = new Elections(electors, false);
         elections.addCandidate("Michel");
         elections.addCandidate("Jerry");
         elections.addCandidate("Johnny");
@@ -30,17 +31,18 @@ class ElectionsTest {
 
         var results = elections.results();
 
-        //todo : add approval tests here
+        // THEN
+        Approvals.verify(results);
     }
 
     @Test
     void electionWithDistricts() {
-        Map<String, List<String>> list = Map.of(
+        Map<String, List<String>> electors = Map.of(
                 "District 1", Arrays.asList("Bob", "Anna", "Jess", "July"),
                 "District 2", Arrays.asList("Jerry", "Simon"),
                 "District 3", Arrays.asList("Johnny", "Matt", "Carole")
         );
-        Elections elections = new Elections(list, true);
+        Elections elections = new Elections(electors, true);
         elections.addCandidate("Michel");
         elections.addCandidate("Jerry");
         elections.addCandidate("Johnny");
@@ -57,6 +59,7 @@ class ElectionsTest {
 
         var results = elections.results();
 
-        //todo : add approval tests here
+        // THEN
+        Approvals.verify(results);
     }
 }
