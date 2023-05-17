@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ElectionsWithoutDistrict implements Elections {
     List<String> candidates = new ArrayList<>();
@@ -50,40 +51,32 @@ public class ElectionsWithoutDistrict implements Elections {
     @Override
     public Map<String, String> results() {
         Map<String, String> results = new HashMap<>();
-        int nullVotes = 0;
-        int blankVotes = 0;
-
+        // compute votes
         int nbVotes = votesByCandidate.values().stream().reduce(0, Integer::sum);
 
         int nbValidVotes = votesByCandidate.entrySet().stream()
                 .filter(e -> officialCandidates.contains(e.getKey()))
                 .map(Map.Entry::getValue)
                 .reduce(0, Integer::sum);
-
-        for (int i = 0; i < votes.size(); i++) {
-            Float candidatResult = ((float) votes.get(i) * 100) / nbValidVotes;
-            String candidate = candidates.get(i);
-            if (officialCandidates.contains(candidate)) {
-                results.put(candidate, String.format(Locale.FRENCH, "%.2f%%", candidatResult));
-            } else {
-                if (candidates.get(i).isEmpty()) {
-                    blankVotes += votes.get(i);
-                } else {
-                    nullVotes += votes.get(i);
-                }
-            }
-        }
-
-        float blankResult = ((float) blankVotes * 100) / nbVotes;
-        results.put("Blank", String.format(Locale.FRENCH, "%.2f%%", blankResult));
-
-        float nullResult = ((float) nullVotes * 100) / nbVotes;
-        results.put("Null", String.format(Locale.FRENCH, "%.2f%%", nullResult));
-
+        int blankVotes = votesByCandidate.getOrDefault("", 0);
+        int nullVotes = nbVotes - nbValidVotes - blankVotes;
         int nbElectors = electors.values().stream().map(List::size).reduce(0, Integer::sum);
-        DecimalFormat df = new DecimalFormat();
-        df.setMaximumFractionDigits(2);
+
+        Map<String, Integer> scoresByCandidate = votesByCandidate.entrySet().stream()
+                .filter(e -> officialCandidates.contains(e.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        // Compute percent
+        Map<String, Float> resultsByCandidate = scoresByCandidate.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> (float) e.getValue() * 100 /nbValidVotes));
+        float blankResult = ((float) blankVotes * 100) / nbVotes;
+        float nullResult = ((float) nullVotes * 100) / nbVotes;
         float abstentionResult = 100 - ((float) nbVotes * 100 / nbElectors);
+
+        // Display results
+        resultsByCandidate.forEach((candidate,result) -> results.put(candidate, String.format(Locale.FRENCH, "%.2f%%", result)));
+        results.put("Blank", String.format(Locale.FRENCH, "%.2f%%", blankResult));
+        results.put("Null", String.format(Locale.FRENCH, "%.2f%%", nullResult));
         results.put("Abstention", String.format(Locale.FRENCH, "%.2f%%", abstentionResult));
 
         return results;
