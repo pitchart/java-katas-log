@@ -50,16 +50,15 @@ public class ElectionsWithoutDistrict implements Elections {
     @Override
     public Map<String, String> results() {
         Map<String, String> results = new HashMap<>();
-        int nbVotes = 0;
         int nullVotes = 0;
         int blankVotes = 0;
-        int nbValidVotes = 0;
 
-        nbVotes = votes.stream().reduce(0, Integer::sum);
-        for (int i = 0; i < officialCandidates.size(); i++) {
-            int index = candidates.indexOf(officialCandidates.get(i));
-            nbValidVotes += votes.get(index);
-        }
+        int nbVotes = votesByCandidate.values().stream().reduce(0, Integer::sum);
+
+        int nbValidVotes = votesByCandidate.entrySet().stream()
+                .filter(e -> officialCandidates.contains(e.getKey()))
+                .map(Map.Entry::getValue)
+                .reduce(0, Integer::sum);
 
         for (int i = 0; i < votes.size(); i++) {
             Float candidatResult = ((float) votes.get(i) * 100) / nbValidVotes;
