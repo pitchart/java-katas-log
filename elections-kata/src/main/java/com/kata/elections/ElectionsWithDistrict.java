@@ -8,7 +8,7 @@ import java.util.*;
  *
  * @author Cube-DC team {@literal <cubegetdreexlille@decathlon.net>}
  */
-public class ElectionsWithDistrict implements ElectionsInterface {
+public class ElectionsWithDistrict implements Elections {
     List<String> candidates = new ArrayList<>();
     List<String> officialCandidates = new ArrayList<>();
     Map<String, ArrayList<Integer>> votesWithDistricts;
