@@ -36,25 +36,8 @@ public class ElectionsWithoutDistrict implements Elections {
     @Override
     public Map<String, String> results() {
         // compute votes
-        ResultTO resultTO = new ResultTO();
-        resultTO.nbVotes = votesByCandidate.values().stream().reduce(0, Integer::sum);
-
-        resultTO.nbValidVotes = votesByCandidate.entrySet().stream()
-                .filter(e1 -> officialCandidates.contains(e1.getKey()))
-                .map(Map.Entry::getValue)
-                .reduce(0, Integer::sum);
-        resultTO.nbBlankVotes = votesByCandidate.getOrDefault("", 0);
-
-        resultTO.nullVotes = resultTO.nbVotes - votesByCandidate.entrySet().stream()
-                .filter(e11 -> officialCandidates.contains(e11.getKey()))
-                .map(Map.Entry::getValue)
-                .reduce(0, Integer::sum) - votesByCandidate.getOrDefault("", 0);
-
-        resultTO.nbElectors = electors.values().stream().map(List::size).reduce(0, Integer::sum);
-
-        resultTO.scoresByCandidate = votesByCandidate.entrySet().stream()
-                .filter(e21 -> officialCandidates.contains(e21.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        VoteCountFactory voteCountFactory = new VoteCountFactory();
+        VoteCountTo voteCountTo = voteCountFactory.getVoteCountTo(electors, officialCandidates, votesByCandidate);
 
         // Compute percent
         Map<String, Float> resultsByCandidate = votesByCandidate.entrySet().stream()
@@ -64,12 +47,12 @@ public class ElectionsWithoutDistrict implements Elections {
                         .filter(e1 -> officialCandidates.contains(e1.getKey()))
                         .map(Map.Entry::getValue)
                         .reduce(0, Integer::sum)));
-        float blankResult = ((float) (int) votesByCandidate.getOrDefault("", 0) * 100) / resultTO.nbVotes;
-        float nullResult = ((float) (resultTO.nbVotes - votesByCandidate.entrySet().stream()
+        float blankResult = ((float) (int) votesByCandidate.getOrDefault("", 0) * 100) / voteCountTo.getNbVotes();
+        float nullResult = ((float) (voteCountTo.getNbVotes() - votesByCandidate.entrySet().stream()
                         .filter(e11 -> officialCandidates.contains(e11.getKey()))
                         .map(Map.Entry::getValue)
-                        .reduce(0, Integer::sum) - votesByCandidate.getOrDefault("", 0)) * 100) / resultTO.nbVotes;
-        float abstentionResult = 100 - ((float) resultTO.nbVotes * 100 / electors.values().stream().map(List::size).reduce(0, Integer::sum));
+                        .reduce(0, Integer::sum) - votesByCandidate.getOrDefault("", 0)) * 100) / voteCountTo.getNbVotes();
+        float abstentionResult = 100 - ((float) voteCountTo.getNbVotes() * 100 / electors.values().stream().map(List::size).reduce(0, Integer::sum));
 
         return ElectionsResults.displayResults(resultsByCandidate, blankResult, nullResult, abstentionResult);
     }
