@@ -16,4 +16,8 @@ public class ElectionsResults {
         results.put("Abstention", String.format(Locale.FRENCH, "%.2f%%", abstentionResult));
         return results;
     }
+
+    public static Map<String, String> displayResults(ResultsTO resultsTO) {
+        return displayResults(resultsTO.getResultsByCandidate(), resultsTO.getBlankResult(), resultsTO.getNullResult(), resultsTO.getAbstentionResult());
+    }
 }
