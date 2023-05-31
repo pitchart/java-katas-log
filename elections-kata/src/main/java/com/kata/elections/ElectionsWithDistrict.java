@@ -105,6 +105,7 @@ public class ElectionsWithDistrict implements Elections {
         }
 
         float blankResult = ((float) blankVotes * 100) / nbVotes;
+
         results.put("Blank", String.format(Locale.FRENCH, "%.2f%%", blankResult));
 
         float nullResult = ((float) nullVotes * 100) / nbVotes;

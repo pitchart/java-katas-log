@@ -1,8 +1,12 @@
 package com.kata.elections;
 
+import com.sun.jdi.VoidType;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  *
@@ -12,9 +16,7 @@ public class ElectionsResults {
     public static Map<String, String> displayResults(ResultsTO resultsTO) {
         Map<String, String> results = new HashMap<>();
         resultsTO.getResultsByCandidate().forEach((candidate, result) -> results.put(candidate, format(result)));
-        results.put(VotesType.BLANK.getType(), format(resultsTO.getBlankResult()));
-        results.put(VotesType.NULL.getType(), format(resultsTO.getNullResult()));
-        results.put(VotesType.ABSTENTION.getType(), format(resultsTO.getAbstentionResult()));
+        Arrays.stream(VotesType.values()).forEach(votesType -> results.put(votesType.getType(),format(votesType.getFunction().apply(resultsTO))));
         return results;
     }
 
