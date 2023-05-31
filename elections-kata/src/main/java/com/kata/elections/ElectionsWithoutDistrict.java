@@ -38,7 +38,6 @@ public class ElectionsWithoutDistrict implements Elections {
     @Override
     public Map<String, String> results() {
         VoteCountTo voteCountTo = voteCountFactory.getVoteCountTo(electors, officialCandidates, votesByCandidate);
-
         ResultsTO resultsTO = votesPercentages.computePercentage(voteCountTo);
         return ElectionsResults.displayResults(resultsTO);
     }

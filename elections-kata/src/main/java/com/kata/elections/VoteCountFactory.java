@@ -17,6 +17,7 @@ public class VoteCountFactory {
                 .filter(e1 -> officialCandidates.contains(e1.getKey()))
                 .map(Map.Entry::getValue)
                 .reduce(0, Integer::sum);
+
         int nbBlankVotes = votesByCandidate.getOrDefault("", 0);
 
         int nullVotes = nbVotes - votesByCandidate.entrySet().stream()
@@ -29,6 +30,7 @@ public class VoteCountFactory {
         Map<String, Integer> scoresByCandidate = votesByCandidate.entrySet().stream()
                 .filter(e21 -> officialCandidates.contains(e21.getKey()))
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
         return new VoteCountTo(nbVotes, nbValidVotes, nbBlankVotes, nullVotes, nbElectors, scoresByCandidate);
     }
 }

@@ -11,11 +11,16 @@ public class VotesPercentages {
         // Compute percent
         Map<String, Float> resultsByCandidate = voteCountTo.getScoresByCandidate().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> (float) e.getValue() * 100 / voteCountTo.getNbValidVotes()));
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> getPercentage(e.getValue(),voteCountTo.getNbValidVotes())));
 
-        float blankResult = ((float) voteCountTo.getNbBlankVotes() * 100) / voteCountTo.getNbVotes();
-        float nullResult = ((float) voteCountTo.getNullVotes() * 100) / voteCountTo.getNbVotes();
-        float abstentionResult = 100 - ((float) voteCountTo.getNbVotes() * 100 / voteCountTo.getNbElectors());
+        float blankResult = getPercentage(voteCountTo.getNbBlankVotes(), voteCountTo.getNbVotes());
+        float nullResult = getPercentage(voteCountTo.getNullVotes(), voteCountTo.getNbVotes());
+        float abstentionResult = 100 - getPercentage(voteCountTo.getNbVotes(),voteCountTo.getNbElectors());
         return new ResultsTO(blankResult, nullResult, abstentionResult, resultsByCandidate);
     }
+
+    private static float getPercentage(int subTotal, int total) {
+        return ((float)subTotal * 100) / total;
+    }
+
 }
