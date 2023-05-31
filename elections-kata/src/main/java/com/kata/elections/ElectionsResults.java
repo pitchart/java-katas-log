@@ -13,14 +13,14 @@ import java.util.function.Function;
  */
 public class ElectionsResults {
 
-    public static Map<String, String> displayResults(ResultsTO resultsTO) {
+    public Map<String, String> displayResults(ResultsTO resultsTO) {
         Map<String, String> results = new HashMap<>();
         resultsTO.getResultsByCandidate().forEach((candidate, result) -> results.put(candidate, format(result)));
         Arrays.stream(VotesType.values()).forEach(votesType -> results.put(votesType.getType(),format(votesType.getFunction().apply(resultsTO))));
         return results;
     }
 
-    private static String format(float blankResult) {
+    private String format(float blankResult) {
         return String.format(Locale.FRENCH, "%.2f%%", blankResult);
     }
 }

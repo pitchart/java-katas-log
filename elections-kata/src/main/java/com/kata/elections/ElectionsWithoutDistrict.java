@@ -8,15 +8,17 @@ import java.util.Map;
 public class ElectionsWithoutDistrict implements Elections {
     List<String> officialCandidates = new ArrayList<>();
     private final Map<String, List<String>> electors;
-
     private final Map<String, Integer> votesByCandidate = new HashMap<>();
     // compute votes
     private final VoteCountFactory voteCountFactory = new VoteCountFactory();
     private final VotesPercentages votesPercentages = new VotesPercentages();
+    private final ElectionsResults electionsResults = new ElectionsResults();
 
 
-    public ElectionsWithoutDistrict(Map<String, List<String>> electors) {
+
+    public ElectionsWithoutDistrict(Map<String, List<String>> electors, List<String> candidates) {
         this.electors = electors;
+        candidates.forEach(this::addCandidate);
     }
 
     @Override
@@ -39,7 +41,7 @@ public class ElectionsWithoutDistrict implements Elections {
     public Map<String, String> results() {
         VoteCountTo voteCountTo = voteCountFactory.getVoteCountTo(electors, officialCandidates, votesByCandidate);
         ResultsTO resultsTO = votesPercentages.computePercentage(voteCountTo);
-        return ElectionsResults.displayResults(resultsTO);
+        return electionsResults.displayResults(resultsTO);
     }
 
 }

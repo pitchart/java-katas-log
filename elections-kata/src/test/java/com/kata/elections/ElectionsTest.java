@@ -15,10 +15,9 @@ class ElectionsTest {
                 "District 2", Arrays.asList("Jerry", "Simon"),
                 "District 3", Arrays.asList("Johnny", "Matt", "Carole")
         );
-        Elections elections = new ElectionsWithoutDistrict(electors);
-        elections.addCandidate("Michel");
-        elections.addCandidate("Jerry");
-        elections.addCandidate("Johnny");
+
+        List<String> candidates = List.of("Michel", "Jerry", "Johnny");
+        Elections elections = new ElectionsWithoutDistrict(electors, candidates);
 
         elections.voteFor("Bob", "Jerry", "District 1");
         elections.voteFor("Jerry", "Jerry", "District 2");
