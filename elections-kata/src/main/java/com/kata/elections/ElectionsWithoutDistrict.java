@@ -9,6 +9,7 @@ public class ElectionsWithoutDistrict implements Elections {
     List<String> officialCandidates = new ArrayList<>();
     private final Map<String, List<String>> electors;
     private final Map<String, Integer> votesByCandidate = new HashMap<>();
+    private final CandidateVotes candidateVotes = new CandidateVotes();
     // compute votes
     private final VoteCountFactory voteCountFactory = new VoteCountFactory();
     private final VotesPercentages votesPercentages = new VotesPercentages();
@@ -25,6 +26,7 @@ public class ElectionsWithoutDistrict implements Elections {
     public void addCandidate(String candidate) {
         officialCandidates.add(candidate);
         votesByCandidate.put(candidate, 0);
+        candidateVotes.addCandidate(candidate);
     }
 
 
@@ -35,6 +37,7 @@ public class ElectionsWithoutDistrict implements Elections {
         } else {
             votesByCandidate.put(candidate, 1);
         }
+        candidateVotes.addVote(candidate);
     }
 
     @Override
