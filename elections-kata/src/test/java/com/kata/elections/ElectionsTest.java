@@ -1,6 +1,9 @@
 package com.kata.elections;
 
 import org.approvaltests.Approvals;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -61,5 +64,19 @@ class ElectionsTest {
 
         // THEN
         Approvals.verify(results);
+    }
+
+    @Test
+    void electionWithDistrict_should(){
+        Map<String, List<String>> electors = Map.of(
+                "District 4", Arrays.asList("Bob", "Anna", "Jess", "July"));
+
+        Elections elections = new ElectionsWithDistrict(electors);
+        elections.addCandidate("Renny");
+        elections.voteFor("Bob", "Renny", "District 4");
+
+        var results = elections.results();
+        assertTrue(results.containsKey("Renny"));
+        assertEquals("100,00%", results.get("Renny"));
     }
 }

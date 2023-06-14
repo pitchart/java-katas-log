@@ -18,7 +18,6 @@ public class ElectionsWithDistrict implements Elections {
 
     public ElectionsWithDistrict(Map<String, List<String>> electors) {
         this.electors = electors;
-        // input of constructor :  list of districts
         votesWithDistricts = electors.keySet().stream().collect(Collectors.toMap(district -> district, district -> new ArrayList<>()));
     }
 
@@ -26,28 +25,23 @@ public class ElectionsWithDistrict implements Elections {
     public void addCandidate(String candidate) {
         officialCandidates.add(candidate);
         candidates.add(candidate);
-        // initiate value default / loop
-        votesWithDistricts.get("District 1").add(0);
-        votesWithDistricts.get("District 2").add(0);
-        votesWithDistricts.get("District 3").add(0);
+        votesWithDistricts.forEach((k, v) -> v.add(0));
     }
 
     @Override
     public void voteFor(String elector, String candidate, String electorDistrict) {
-        if (votesWithDistricts.containsKey(electorDistrict)) {
-            ArrayList<Integer> districtVotes = votesWithDistricts.get(electorDistrict);
-            if (candidates.contains(candidate)) {
-                int index = candidates.indexOf(candidate);
-                districtVotes.set(index, districtVotes.get(index) + 1);
-            } else {
-                // bis repetita
-                candidates.add(candidate);
-                votesWithDistricts.forEach((district, votes) -> {
-                    votes.add(0);
-                });
-                districtVotes.set(candidates.size() - 1, districtVotes.get(candidates.size() - 1) + 1);
-            }
+        if (!votesWithDistricts.containsKey(electorDistrict)) {
+            return;
         }
+        if (!candidates.contains(candidate)) {
+            candidates.add(candidate);
+            votesWithDistricts.forEach((district, votes) -> {
+                votes.add(0);
+            });
+        }
+        int index = candidates.indexOf(candidate);
+        ArrayList<Integer> districtVotes = votesWithDistricts.get(electorDistrict);
+        districtVotes.set(index, districtVotes.get(index) + 1);
     }
 
     @Override
