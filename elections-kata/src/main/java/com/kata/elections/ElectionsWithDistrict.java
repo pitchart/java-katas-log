@@ -2,6 +2,7 @@ package com.kata.elections;
 
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Property of project CUBE. Copyright Decathlon 2023.
@@ -14,18 +15,18 @@ public class ElectionsWithDistrict implements Elections {
     Map<String, ArrayList<Integer>> votesWithDistricts;
     private Map<String, List<String>> electors;
 
+
     public ElectionsWithDistrict(Map<String, List<String>> electors) {
         this.electors = electors;
-        votesWithDistricts = new HashMap<>();
-        votesWithDistricts.put("District 1", new ArrayList<>());
-        votesWithDistricts.put("District 2", new ArrayList<>());
-        votesWithDistricts.put("District 3", new ArrayList<>());
+        // input of constructor :  list of districts
+        votesWithDistricts = electors.keySet().stream().collect(Collectors.toMap(district -> district, district -> new ArrayList<>()));
     }
 
     @Override
     public void addCandidate(String candidate) {
         officialCandidates.add(candidate);
         candidates.add(candidate);
+        // initiate value default / loop
         votesWithDistricts.get("District 1").add(0);
         votesWithDistricts.get("District 2").add(0);
         votesWithDistricts.get("District 3").add(0);

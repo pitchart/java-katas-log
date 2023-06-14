@@ -41,6 +41,7 @@ class ElectionsTest {
                 "District 2", Arrays.asList("Jerry", "Simon"),
                 "District 3", Arrays.asList("Johnny", "Matt", "Carole")
         );
+
         Elections elections = new ElectionsWithDistrict(electors);
         elections.addCandidate("Michel");
         elections.addCandidate("Jerry");
