@@ -11,28 +11,22 @@ import java.util.stream.Collectors;
 public class VoteCountFactory {
 
     public VoteCountTo getVoteCountTo(Map<String, List<String>> electors, List<String> officialCandidates, CandidateVotes candidateVotes) {
-        Map<String, Integer> votesByCandidate = candidateVotes.getVotesByCandidate();
 
-        int nbVotes = votesByCandidate.values().stream().reduce(0, Integer::sum);
+        int nbVotes = candidateVotes.getNbVotes();
 
-        int nbValidVotes = votesByCandidate.entrySet().stream()
-                .filter(e1 -> officialCandidates.contains(e1.getKey()))
-                .map(Entry::getValue)
-                .reduce(0, Integer::sum);
+        int nbValidVotes = candidateVotes.getNbValidVotes(officialCandidates);
 
-        int nbBlankVotes = votesByCandidate.getOrDefault("", 0);
+        int nbBlankVotes = candidateVotes.getNbBlankVotes();
 
-        int nullVotes = nbVotes - votesByCandidate.entrySet().stream()
-                .filter(e11 -> officialCandidates.contains(e11.getKey()))
-                .map(Entry::getValue)
-                .reduce(0, Integer::sum) - votesByCandidate.getOrDefault("", 0);
+        int nullVotes = nbVotes - nbValidVotes - nbBlankVotes;
 
         int nbElectors = electors.values().stream().map(List::size).reduce(0, Integer::sum);
 
-        Map<String, Integer> scoresByCandidate = votesByCandidate.entrySet().stream()
+        Map<String, Integer> scoresByCandidate = candidateVotes.getVotesByCandidate().entrySet().stream()
                 .filter(e21 -> officialCandidates.contains(e21.getKey()))
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
         return new VoteCountTo(nbVotes, nbValidVotes, nbBlankVotes, nullVotes, nbElectors, scoresByCandidate);
     }
+
 }
