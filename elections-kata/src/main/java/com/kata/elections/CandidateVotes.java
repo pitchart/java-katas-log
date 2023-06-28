@@ -26,6 +26,11 @@ public class CandidateVotes {
     }
 
     public int getVotesFor(String candidate) {
-        return votesByCandidate.get(candidate);
+        return votesByCandidate.getOrDefault(candidate,0);
+    }
+
+    //TODO FIX ME
+    public Map<String, Integer> getVotesByCandidate() {
+        return votesByCandidate;
     }
 }

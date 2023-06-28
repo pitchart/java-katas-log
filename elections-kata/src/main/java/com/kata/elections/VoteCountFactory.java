@@ -9,20 +9,22 @@ import java.util.stream.Collectors;
  *
  */
 public class VoteCountFactory {
-     VoteCountTo getVoteCountTo(Map<String, List<String>> electors, List<String> officialCandidates, Map<String, Integer> votesByCandidate) {
+
+    public VoteCountTo getVoteCountTo(Map<String, List<String>> electors, List<String> officialCandidates, CandidateVotes candidateVotes) {
+        Map<String, Integer> votesByCandidate = candidateVotes.getVotesByCandidate();
 
         int nbVotes = votesByCandidate.values().stream().reduce(0, Integer::sum);
 
         int nbValidVotes = votesByCandidate.entrySet().stream()
                 .filter(e1 -> officialCandidates.contains(e1.getKey()))
-                .map(Map.Entry::getValue)
+                .map(Entry::getValue)
                 .reduce(0, Integer::sum);
 
         int nbBlankVotes = votesByCandidate.getOrDefault("", 0);
 
         int nullVotes = nbVotes - votesByCandidate.entrySet().stream()
                 .filter(e11 -> officialCandidates.contains(e11.getKey()))
-                .map(Map.Entry::getValue)
+                .map(Entry::getValue)
                 .reduce(0, Integer::sum) - votesByCandidate.getOrDefault("", 0);
 
         int nbElectors = electors.values().stream().map(List::size).reduce(0, Integer::sum);

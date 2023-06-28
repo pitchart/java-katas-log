@@ -42,7 +42,7 @@ public class ElectionsWithoutDistrict implements Elections {
 
     @Override
     public Map<String, String> results() {
-        VoteCountTo voteCountTo = voteCountFactory.getVoteCountTo(electors, officialCandidates, votesByCandidate);
+        VoteCountTo voteCountTo = voteCountFactory.getVoteCountTo(electors, officialCandidates, candidateVotes);
         ResultsTO resultsTO = votesPercentages.computePercentage(voteCountTo);
         return electionsResults.displayResults(resultsTO);
     }
