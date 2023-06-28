@@ -10,15 +10,17 @@ import java.util.stream.Collectors;
  * @author Cube-DC team {@literal <cubegetdreexlille@decathlon.net>}
  */
 public class ElectionsWithDistrict implements Elections {
-    List<String> candidates = new ArrayList<>();
-    List<String> officialCandidates = new ArrayList<>();
-    Map<String, ArrayList<Integer>> votesWithDistricts;
+    private List<String> candidates = new ArrayList<>();
+    private List<String> officialCandidates = new ArrayList<>();
+    private Map<String, ArrayList<Integer>> votesWithDistricts;
     private Map<String, List<String>> electors;
+    private Map<String, CandidateVotes> candidateVotesByDistrict;
 
 
     public ElectionsWithDistrict(Map<String, List<String>> electors) {
         this.electors = electors;
         votesWithDistricts = electors.keySet().stream().collect(Collectors.toMap(district -> district, district -> new ArrayList<>()));
+        candidateVotesByDistrict = electors.keySet().stream().collect(Collectors.toMap(district -> district, district -> new CandidateVotes()));
     }
 
     @Override
@@ -30,7 +32,7 @@ public class ElectionsWithDistrict implements Elections {
 
     @Override
     public void voteFor(String elector, String candidate, String electorDistrict) {
-        if (!votesWithDistricts.containsKey(electorDistrict)) {
+        if (!candidateVotesByDistrict.containsKey(electorDistrict)) {
             return;
         }
         if (!candidates.contains(candidate)) {
@@ -42,6 +44,7 @@ public class ElectionsWithDistrict implements Elections {
         int index = candidates.indexOf(candidate);
         ArrayList<Integer> districtVotes = votesWithDistricts.get(electorDistrict);
         districtVotes.set(index, districtVotes.get(index) + 1);
+        candidateVotesByDistrict.get(electorDistrict).addVote(candidate);
     }
 
     @Override

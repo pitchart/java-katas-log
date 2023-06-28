@@ -1,5 +1,6 @@
 package com.kata.elections;
 
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.List;
@@ -45,8 +46,6 @@ public class CandidateVotes {
     }
 
     public Map<String, Integer> getScoresByCandidate(List<String> officialCandidates) {
-        return votesByCandidate.entrySet().stream()
-                .filter(e21 -> officialCandidates.contains(e21.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return officialCandidates.stream().collect(Collectors.toMap(Function.identity(), this::getVotesFor));
     }
 }

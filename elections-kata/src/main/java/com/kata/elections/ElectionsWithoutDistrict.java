@@ -24,7 +24,6 @@ public class ElectionsWithoutDistrict implements Elections {
     @Override
     public void addCandidate(String candidate) {
         officialCandidates.add(candidate);
-        candidateVotes.addCandidate(candidate);
     }
 
 
