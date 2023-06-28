@@ -13,6 +13,8 @@ public class ElectionsWithDistrict implements Elections {
     private List<String> officialCandidates = new ArrayList<>();
     private Map<String, List<String>> electors;
     private Map<String, CandidateVotes> candidateVotesByDistrict;
+    // compute votes
+//    private final VoteCountFactory voteCountFactory = new VoteCountFactory();
 
 
     public ElectionsWithDistrict(Map<String, List<String>> electors) {
@@ -35,8 +37,7 @@ public class ElectionsWithDistrict implements Elections {
 
     @Override
     public Map<String, String> results() {
-        Map<String, String> results = new HashMap<>();
-
+        //        VoteCountTo voteCountTo = voteCountFactory.getVoteCountTo(electors, officialCandidates, candidateVotes);
         int nbVotes = candidateVotesByDistrict.values().stream().mapToInt(CandidateVotes::getNbVotes).sum();
         int nbValidVotes = candidateVotesByDistrict.values().stream().mapToInt(candidateVotes -> candidateVotes.getNbValidVotes(officialCandidates)).sum();
         int blankVotes = candidateVotesByDistrict.values().stream().mapToInt(CandidateVotes::getNbBlankVotes).sum();
@@ -47,26 +48,33 @@ public class ElectionsWithDistrict implements Elections {
                 .stream()
                 .map(candidateVotes -> candidateVotes.getWinner(officialCandidates))
                 .forEach(winner-> officialCandidatesResult.put(winner, officialCandidatesResult.getOrDefault(winner, 0) + 1));
+        int nbElectors = electors.values().stream().map(List::size).reduce(0, Integer::sum);
 
+        VoteCountTo voteCountTo = new VoteCountTo(nbVotes, nbValidVotes, blankVotes, nullVotes, nbElectors, officialCandidatesResult);
 
+//        ResultsTO resultsTO = votesPercentages.computePercentage(voteCountTo);
+        Map<String, Float> rationByCandidate = new HashMap<>();
         for (int i = 0; i < officialCandidates.size(); i++) {
-            Float ratioCandidate = ((float) officialCandidatesResult.getOrDefault(officialCandidates.get(i),0)) / officialCandidates.size() * 100;
-            results.put(officialCandidates.get(i), String.format(Locale.FRENCH, "%.2f%%", ratioCandidate));
+            Float ratioCandidate = ((float) voteCountTo.getScoresByCandidate().getOrDefault(officialCandidates.get(i),0)) / officialCandidates.size() * 100;
+            rationByCandidate.put(officialCandidates.get(i), ratioCandidate);
         }
 
-        float blankResult = ((float) blankVotes * 100) / nbVotes;
+        float blankResult = ((float) voteCountTo.getNbBlankVotes() * 100) / voteCountTo.getNbVotes();
 
-        results.put("Blank", String.format(Locale.FRENCH, "%.2f%%", blankResult));
+        float nullResult = ((float) voteCountTo.getNullVotes() * 100) / voteCountTo.getNbVotes();
 
-        float nullResult = ((float) nullVotes * 100) / nbVotes;
-        results.put("Null", String.format(Locale.FRENCH, "%.2f%%", nullResult));
-
-        int nbElectors = electors.values().stream().map(List::size).reduce(0, Integer::sum);
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(2);
-        float abstentionResult = 100 - ((float) nbVotes * 100 / nbElectors);
-        results.put("Abstention", String.format(Locale.FRENCH, "%.2f%%", abstentionResult));
+        float abstentionResult = 100 - ((float) voteCountTo.getNbVotes() * 100 / voteCountTo.getNbElectors());
 
+//        return electionsResults.displayResults(resultsTO);
+        Map<String, String> results = new HashMap<>();
+        for (int i = 0; i < officialCandidates.size(); i++) {
+            results.put(officialCandidates.get(i), String.format(Locale.FRENCH, "%.2f%%", rationByCandidate.get(officialCandidates.get(i))));
+        }
+        results.put("Blank", String.format(Locale.FRENCH, "%.2f%%", blankResult));
+        results.put("Null", String.format(Locale.FRENCH, "%.2f%%", nullResult));
+        results.put("Abstention", String.format(Locale.FRENCH, "%.2f%%", abstentionResult));
         return results;
     }
 }
