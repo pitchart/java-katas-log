@@ -8,7 +8,6 @@ import java.util.Map;
 public class ElectionsWithoutDistrict implements Elections {
     List<String> officialCandidates = new ArrayList<>();
     private final Map<String, List<String>> electors;
-    private final Map<String, Integer> votesByCandidate = new HashMap<>();
     private final CandidateVotes candidateVotes = new CandidateVotes();
     // compute votes
     private final VoteCountFactory voteCountFactory = new VoteCountFactory();
@@ -25,18 +24,12 @@ public class ElectionsWithoutDistrict implements Elections {
     @Override
     public void addCandidate(String candidate) {
         officialCandidates.add(candidate);
-        votesByCandidate.put(candidate, 0);
         candidateVotes.addCandidate(candidate);
     }
 
 
     @Override
     public void voteFor(String elector, String candidate, String electorDistrict) {
-        if (votesByCandidate.containsKey(candidate)) {
-            votesByCandidate.put(candidate, votesByCandidate.get(candidate) + 1);
-        } else {
-            votesByCandidate.put(candidate, 1);
-        }
         candidateVotes.addVote(candidate);
     }
 

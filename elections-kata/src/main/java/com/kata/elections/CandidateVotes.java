@@ -1,7 +1,6 @@
 package com.kata.elections;
 
-import javax.naming.NameAlreadyBoundException;
-import java.text.MessageFormat;
+import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,7 @@ public class CandidateVotes {
     private final Map<String, Integer> votesByCandidate = new HashMap<>();
 
     public Integer getNbValidVotes(List<String> officialCandidates) {
-        return getVotesByCandidate().entrySet().stream()
+        return votesByCandidate.entrySet().stream()
                 .filter(e1 -> officialCandidates.contains(e1.getKey()))
                 .map(Map.Entry::getValue)
                 .reduce(0, Integer::sum);
@@ -41,12 +40,13 @@ public class CandidateVotes {
         return votesByCandidate.getOrDefault(candidate,0);
     }
 
-    //TODO FIX ME
-    public Map<String, Integer> getVotesByCandidate() {
-        return votesByCandidate;
-    }
-
     public int getNbBlankVotes() {
         return getVotesFor("");
+    }
+
+    public Map<String, Integer> getScoresByCandidate(List<String> officialCandidates) {
+        return votesByCandidate.entrySet().stream()
+                .filter(e21 -> officialCandidates.contains(e21.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
