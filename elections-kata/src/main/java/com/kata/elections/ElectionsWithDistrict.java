@@ -50,23 +50,11 @@ public class ElectionsWithDistrict implements Elections {
     @Override
     public Map<String, String> results() {
         Map<String, String> results = new HashMap<>();
-        int nbVotes = 0;
-        int nullVotes = 0;
-        int blankVotes = 0;
-        int nbValidVotes = 0;
 
-        for (Map.Entry<String, ArrayList<Integer>> entry : votesWithDistricts.entrySet()) {
-            ArrayList<Integer> districtVotes = entry.getValue();
-            nbVotes += districtVotes.stream().reduce(0, Integer::sum);
-        }
-
-        for (int i = 0; i < officialCandidates.size(); i++) {
-            int index = candidates.indexOf(officialCandidates.get(i));
-            for (Map.Entry<String, ArrayList<Integer>> entry : votesWithDistricts.entrySet()) {
-                ArrayList<Integer> districtVotes = entry.getValue();
-                nbValidVotes += districtVotes.get(index);
-            }
-        }
+        int nbVotes = candidateVotesByDistrict.values().stream().mapToInt(CandidateVotes::getNbVotes).sum();
+        int nbValidVotes = candidateVotesByDistrict.values().stream().mapToInt(candidateVotes -> candidateVotes.getNbValidVotes(officialCandidates)).sum();
+        int blankVotes = candidateVotesByDistrict.values().stream().mapToInt(CandidateVotes::getNbBlankVotes).sum();
+        int nullVotes = nbVotes - nbValidVotes - blankVotes;
 
         Map<String, Integer> officialCandidatesResult = new HashMap<>();
         for (int i = 0; i < officialCandidates.size(); i++) {
@@ -82,12 +70,6 @@ public class ElectionsWithDistrict implements Elections {
                 String candidate = candidates.get(i);
                 if (officialCandidates.contains(candidate)) {
                     districtResult.add(candidateResult);
-                } else {
-                    if (candidates.get(i).isEmpty()) {
-                        blankVotes += districtVotes.get(i);
-                    } else {
-                        nullVotes += districtVotes.get(i);
-                    }
                 }
             }
             int districtWinnerIndex = 0;
@@ -97,6 +79,8 @@ public class ElectionsWithDistrict implements Elections {
             }
             officialCandidatesResult.put(candidates.get(districtWinnerIndex), officialCandidatesResult.get(candidates.get(districtWinnerIndex)) + 1);
         }
+
+
         for (int i = 0; i < officialCandidatesResult.size(); i++) {
             Float ratioCandidate = ((float) officialCandidatesResult.get(candidates.get(i))) / officialCandidatesResult.size() * 100;
             results.put(candidates.get(i), String.format(Locale.FRENCH, "%.2f%%", ratioCandidate));
