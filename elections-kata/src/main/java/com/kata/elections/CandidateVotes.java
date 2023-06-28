@@ -1,5 +1,6 @@
 package com.kata.elections;
 
+import java.util.Collections;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.HashMap;
@@ -47,5 +48,9 @@ public class CandidateVotes {
 
     public Map<String, Integer> getScoresByCandidate(List<String> officialCandidates) {
         return officialCandidates.stream().collect(Collectors.toMap(Function.identity(), this::getVotesFor));
+    }
+
+    public String getWinner(List<String> officialCandidates) {
+        return Collections.max(getScoresByCandidate(officialCandidates).entrySet(), Map.Entry.comparingByValue()).getKey();
     }
 }

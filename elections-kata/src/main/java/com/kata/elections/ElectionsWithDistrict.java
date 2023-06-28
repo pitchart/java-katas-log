@@ -10,24 +10,19 @@ import java.util.stream.Collectors;
  * @author Cube-DC team {@literal <cubegetdreexlille@decathlon.net>}
  */
 public class ElectionsWithDistrict implements Elections {
-    private List<String> candidates = new ArrayList<>();
     private List<String> officialCandidates = new ArrayList<>();
-    private Map<String, ArrayList<Integer>> votesWithDistricts;
     private Map<String, List<String>> electors;
     private Map<String, CandidateVotes> candidateVotesByDistrict;
 
 
     public ElectionsWithDistrict(Map<String, List<String>> electors) {
         this.electors = electors;
-        votesWithDistricts = electors.keySet().stream().collect(Collectors.toMap(district -> district, district -> new ArrayList<>()));
         candidateVotesByDistrict = electors.keySet().stream().collect(Collectors.toMap(district -> district, district -> new CandidateVotes()));
     }
 
     @Override
     public void addCandidate(String candidate) {
         officialCandidates.add(candidate);
-        candidates.add(candidate);
-        votesWithDistricts.forEach((k, v) -> v.add(0));
     }
 
     @Override
@@ -35,15 +30,6 @@ public class ElectionsWithDistrict implements Elections {
         if (!candidateVotesByDistrict.containsKey(electorDistrict)) {
             return;
         }
-        if (!candidates.contains(candidate)) {
-            candidates.add(candidate);
-            votesWithDistricts.forEach((district, votes) -> {
-                votes.add(0);
-            });
-        }
-        int index = candidates.indexOf(candidate);
-        ArrayList<Integer> districtVotes = votesWithDistricts.get(electorDistrict);
-        districtVotes.set(index, districtVotes.get(index) + 1);
         candidateVotesByDistrict.get(electorDistrict).addVote(candidate);
     }
 
@@ -57,33 +43,15 @@ public class ElectionsWithDistrict implements Elections {
         int nullVotes = nbVotes - nbValidVotes - blankVotes;
 
         Map<String, Integer> officialCandidatesResult = new HashMap<>();
+        candidateVotesByDistrict.values()
+                .stream()
+                .map(candidateVotes -> candidateVotes.getWinner(officialCandidates))
+                .forEach(winner-> officialCandidatesResult.put(winner, officialCandidatesResult.getOrDefault(winner, 0) + 1));
+
+
         for (int i = 0; i < officialCandidates.size(); i++) {
-            officialCandidatesResult.put(candidates.get(i), 0);
-        }
-        for (Map.Entry<String, ArrayList<Integer>> entry : votesWithDistricts.entrySet()) {
-            ArrayList<Float> districtResult = new ArrayList<>();
-            ArrayList<Integer> districtVotes = entry.getValue();
-            for (int i = 0; i < districtVotes.size(); i++) {
-                float candidateResult = 0;
-                if (nbValidVotes != 0)
-                    candidateResult = ((float) districtVotes.get(i) * 100) / nbValidVotes;
-                String candidate = candidates.get(i);
-                if (officialCandidates.contains(candidate)) {
-                    districtResult.add(candidateResult);
-                }
-            }
-            int districtWinnerIndex = 0;
-            for (int i = 1; i < districtResult.size(); i++) {
-                if (districtResult.get(districtWinnerIndex) < districtResult.get(i))
-                    districtWinnerIndex = i;
-            }
-            officialCandidatesResult.put(candidates.get(districtWinnerIndex), officialCandidatesResult.get(candidates.get(districtWinnerIndex)) + 1);
-        }
-
-
-        for (int i = 0; i < officialCandidatesResult.size(); i++) {
-            Float ratioCandidate = ((float) officialCandidatesResult.get(candidates.get(i))) / officialCandidatesResult.size() * 100;
-            results.put(candidates.get(i), String.format(Locale.FRENCH, "%.2f%%", ratioCandidate));
+            Float ratioCandidate = ((float) officialCandidatesResult.getOrDefault(officialCandidates.get(i),0)) / officialCandidates.size() * 100;
+            results.put(officialCandidates.get(i), String.format(Locale.FRENCH, "%.2f%%", ratioCandidate));
         }
 
         float blankResult = ((float) blankVotes * 100) / nbVotes;
