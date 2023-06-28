@@ -13,6 +13,8 @@ public class ElectionsWithDistrict implements Elections {
     private List<String> officialCandidates = new ArrayList<>();
     private Map<String, List<String>> electors;
     private Map<String, CandidateVotes> candidateVotesByDistrict;
+    private VotesPercentages votesPercentages = new VotesPercentages();
+    private ElectionsResults electionsResults = new ElectionsResults();
     // compute votes
 //    private final VoteCountFactory voteCountFactory = new VoteCountFactory();
 
@@ -38,21 +40,10 @@ public class ElectionsWithDistrict implements Elections {
     @Override
     public Map<String, String> results() {
         //        VoteCountTo voteCountTo = voteCountFactory.getVoteCountTo(electors, officialCandidates, candidateVotes);
-        int nbVotes = candidateVotesByDistrict.values().stream().mapToInt(CandidateVotes::getNbVotes).sum();
-        int nbValidVotes = candidateVotesByDistrict.values().stream().mapToInt(candidateVotes -> candidateVotes.getNbValidVotes(officialCandidates)).sum();
-        int blankVotes = candidateVotesByDistrict.values().stream().mapToInt(CandidateVotes::getNbBlankVotes).sum();
-        int nullVotes = nbVotes - nbValidVotes - blankVotes;
+        VoteCountTo voteCountTo = getVoteCountTo();
 
-        Map<String, Integer> officialCandidatesResult = new HashMap<>();
-        candidateVotesByDistrict.values()
-                .stream()
-                .map(candidateVotes -> candidateVotes.getWinner(officialCandidates))
-                .forEach(winner-> officialCandidatesResult.put(winner, officialCandidatesResult.getOrDefault(winner, 0) + 1));
-        int nbElectors = electors.values().stream().map(List::size).reduce(0, Integer::sum);
+        ResultsTO resultsTO = votesPercentages.computePercentage(voteCountTo);
 
-        VoteCountTo voteCountTo = new VoteCountTo(nbVotes, nbValidVotes, blankVotes, nullVotes, nbElectors, officialCandidatesResult);
-
-//        ResultsTO resultsTO = votesPercentages.computePercentage(voteCountTo);
         Map<String, Float> rationByCandidate = new HashMap<>();
         for (int i = 0; i < officialCandidates.size(); i++) {
             Float ratioCandidate = ((float) voteCountTo.getScoresByCandidate().getOrDefault(officialCandidates.get(i),0)) / officialCandidates.size() * 100;
@@ -67,7 +58,8 @@ public class ElectionsWithDistrict implements Elections {
         df.setMaximumFractionDigits(2);
         float abstentionResult = 100 - ((float) voteCountTo.getNbVotes() * 100 / voteCountTo.getNbElectors());
 
-//        return electionsResults.displayResults(resultsTO);
+        //return electionsResults.displayResults(resultsTO);
+
         Map<String, String> results = new HashMap<>();
         for (int i = 0; i < officialCandidates.size(); i++) {
             results.put(officialCandidates.get(i), String.format(Locale.FRENCH, "%.2f%%", rationByCandidate.get(officialCandidates.get(i))));
@@ -76,5 +68,24 @@ public class ElectionsWithDistrict implements Elections {
         results.put("Null", String.format(Locale.FRENCH, "%.2f%%", nullResult));
         results.put("Abstention", String.format(Locale.FRENCH, "%.2f%%", abstentionResult));
         return results;
+
+
+    }
+
+    private VoteCountTo getVoteCountTo() {
+        int nbVotes = candidateVotesByDistrict.values().stream().mapToInt(CandidateVotes::getNbVotes).sum();
+        int nbValidVotes = candidateVotesByDistrict.values().stream().mapToInt(candidateVotes -> candidateVotes.getNbValidVotes(officialCandidates)).sum();
+        int blankVotes = candidateVotesByDistrict.values().stream().mapToInt(CandidateVotes::getNbBlankVotes).sum();
+        int nullVotes = nbVotes - nbValidVotes - blankVotes;
+
+        Map<String, Integer> officialCandidatesResult = new HashMap<>();
+        candidateVotesByDistrict.values()
+                .stream()
+                .map(candidateVotes -> candidateVotes.getWinner(officialCandidates))
+                .forEach(winner -> officialCandidatesResult.put(winner, officialCandidatesResult.getOrDefault(winner, 0) + 1));
+        int nbElectors = electors.values().stream().map(List::size).reduce(0, Integer::sum);
+
+        VoteCountTo voteCountTo = new VoteCountTo(nbVotes, nbValidVotes, blankVotes, nullVotes, nbElectors, officialCandidatesResult);
+        return voteCountTo;
     }
 }

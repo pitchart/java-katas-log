@@ -79,4 +79,32 @@ class ElectionsTest {
         assertTrue(results.containsKey("Renny"));
         assertEquals("100,00%", results.get("Renny"));
     }
+
+    @Test
+    void electionWithDistricts_with_more_districts_than_candidates() {
+        Map<String, List<String>> electors = Map.of(
+                "District 1", Arrays.asList("Bob", "Anna", "Jess", "July"),
+                "District 2", Arrays.asList("Jerry", "Simon"),
+                "District 3", Arrays.asList("Johnny", "Matt", "Carole")
+        );
+
+        Elections elections = new ElectionsWithDistrict(electors);
+        elections.addCandidate("Johnny");
+        elections.addCandidate("Jerry");
+
+        elections.voteFor("Bob", "Jerry", "District 1");
+        elections.voteFor("Jerry", "Jerry", "District 2");
+        elections.voteFor("Anna", "Johnny", "District 1");
+        elections.voteFor("Johnny", "Johnny", "District 3");
+        elections.voteFor("Matt", "Donald", "District 3");
+        elections.voteFor("Jess", "Joe", "District 1");
+        elections.voteFor("July", "Jerry", "District 1");
+        elections.voteFor("Simon", "", "District 2");
+        elections.voteFor("Carole", "", "District 3");
+
+        var results = elections.results();
+
+        // THEN
+        Approvals.verify(results);
+    }
 }
