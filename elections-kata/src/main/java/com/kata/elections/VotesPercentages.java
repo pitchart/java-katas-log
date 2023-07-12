@@ -1,5 +1,7 @@
 package com.kata.elections;
 
+import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -16,6 +18,7 @@ public class VotesPercentages {
         float blankResult = getPercentage(voteCountTo.getNbBlankVotes(), voteCountTo.getNbVotes());
         float nullResult = getPercentage(voteCountTo.getNullVotes(), voteCountTo.getNbVotes());
         float abstentionResult = 100 - getPercentage(voteCountTo.getNbVotes(),voteCountTo.getNbElectors());
+
         return new ResultsTO(blankResult, nullResult, abstentionResult, resultsByCandidate);
     }
 
@@ -23,4 +26,18 @@ public class VotesPercentages {
         return ((float)subTotal * 100) / total;
     }
 
+    public ResultsTO computePercentageWithDistrict(VoteCountTo voteCountTo) {
+
+        Map<String, Float> ratioByCandidate = new HashMap<>();
+        voteCountTo.getScoresByCandidate().forEach((candidate, score) -> {
+            Float ratioCandidate = getPercentage(score, voteCountTo.getNbDistricts());
+            ratioByCandidate.put(candidate, ratioCandidate);
+        });
+
+        float blankResult = getPercentage(voteCountTo.getNbBlankVotes(), voteCountTo.getNbVotes());
+        float nullResult = getPercentage(voteCountTo.getNullVotes(), voteCountTo.getNbVotes());
+        float abstentionResult = 100 - getPercentage(voteCountTo.getNbVotes(),voteCountTo.getNbElectors());
+
+        return new ResultsTO(blankResult, nullResult, abstentionResult, ratioByCandidate);
+    }
 }

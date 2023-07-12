@@ -7,9 +7,9 @@ import java.util.Map;
 public class ElectionsWithoutDistrict implements Elections {
     List<String> officialCandidates = new ArrayList<>();
     private final Map<String, List<String>> electors;
-    private final CandidateVotes candidateVotes = new CandidateVotes();
+    private final CandidateVotesInterface candidateVotesInterface = new CandidateVotesWithoutDistrict();
     // compute votes
-    private final VoteCountFactory voteCountFactory = new VoteCountFactory();
+    private final VoteCountFactory voteCountWithDistrictFactory = new VoteCountFactory();
     private final VotesPercentages votesPercentages = new VotesPercentages();
     private final ElectionsResults electionsResults = new ElectionsResults();
 
@@ -28,12 +28,12 @@ public class ElectionsWithoutDistrict implements Elections {
 
     @Override
     public void voteFor(String elector, String candidate, String electorDistrict) {
-        candidateVotes.addVote(candidate);
+        candidateVotesInterface.addVote(candidate, electorDistrict);
     }
 
     @Override
     public Map<String, String> results() {
-        VoteCountTo voteCountTo = voteCountFactory.getVoteCountToWithoutDistrict(electors, officialCandidates, candidateVotes);
+        VoteCountTo voteCountTo = voteCountWithDistrictFactory.getVoteCountTo(electors, officialCandidates, candidateVotesInterface);
         ResultsTO resultsTO = votesPercentages.computePercentage(voteCountTo);
         return electionsResults.displayResults(resultsTO);
     }

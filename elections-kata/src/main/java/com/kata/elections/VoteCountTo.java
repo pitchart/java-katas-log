@@ -8,20 +8,25 @@ import java.util.Map;
  * @author EL MOUSSAOUI Tarik  - Cube-DC Team
  */
 public class VoteCountTo {
-    private Integer nbVotes;
-    private int nbValidVotes;
-    private int nbBlankVotes;
-    private int nullVotes;
-    private int nbElectors;
-    private Map<String, Integer> scoresByCandidate;
-
-    public VoteCountTo(Integer nbVotes, int nbValidVotes, int nbBlankVotes, int nullVotes, int nbElectors, Map<String, Integer> scoresByCandidate) {
+    private final int nbDistricts;
+    private final int nbVotes;
+    private final int nbValidVotes;
+    private final int nbBlankVotes;
+    private final int nullVotes;
+    private final int nbElectors;
+    private final Map<String, Integer> scoresByCandidate;
+    public VoteCountTo(Integer nbVotes, int nbValidVotes, int nbBlankVotes, int nullVotes, int nbElectors, Map<String, Integer> scoresByCandidate, int nbDistricts) {
         this.nbVotes = nbVotes;
         this.nbValidVotes = nbValidVotes;
         this.nbBlankVotes = nbBlankVotes;
         this.nullVotes = nullVotes;
         this.nbElectors = nbElectors;
         this.scoresByCandidate = scoresByCandidate;
+        this.nbDistricts = nbDistricts;
+    }
+
+    public int getNbDistricts() {
+        return nbDistricts;
     }
 
     public Integer getNbVotes() {
