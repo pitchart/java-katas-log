@@ -1,7 +1,6 @@
 package com.kata.elections;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public class ElectionsWithoutDistrict implements Elections {
 
     @Override
     public Map<String, String> results() {
-        VoteCountTo voteCountTo = voteCountFactory.getVoteCountTo(electors, officialCandidates, candidateVotes);
+        VoteCountTo voteCountTo = voteCountFactory.getVoteCountToWithoutDistrict(electors, officialCandidates, candidateVotes);
         ResultsTO resultsTO = votesPercentages.computePercentage(voteCountTo);
         return electionsResults.displayResults(resultsTO);
     }

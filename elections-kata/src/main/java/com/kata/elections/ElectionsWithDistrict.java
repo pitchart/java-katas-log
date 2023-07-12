@@ -16,7 +16,7 @@ public class ElectionsWithDistrict implements Elections {
     private VotesPercentages votesPercentages = new VotesPercentages();
     private ElectionsResults electionsResults = new ElectionsResults();
     // compute votes
-//    private final VoteCountFactory voteCountFactory = new VoteCountFactory();
+    private final VoteCountFactory voteCountFactory = new VoteCountFactory();
 
 
     public ElectionsWithDistrict(Map<String, List<String>> electors) {
@@ -39,15 +39,14 @@ public class ElectionsWithDistrict implements Elections {
 
     @Override
     public Map<String, String> results() {
-        //        VoteCountTo voteCountTo = voteCountFactory.getVoteCountTo(electors, officialCandidates, candidateVotes);
-        VoteCountTo voteCountTo = getVoteCountTo();
+        VoteCountTo voteCountTo = voteCountFactory.getVoteCountToWithDistrict(electors, officialCandidates,candidateVotesByDistrict);
 
-        ResultsTO resultsTO = votesPercentages.computePercentage(voteCountTo);
+        // ResultsTO resultsTO = votesPercentages.computePercentage(voteCountTo);
 
-        Map<String, Float> rationByCandidate = new HashMap<>();
+        Map<String, Float> ratioByCandidate = new HashMap<>();
         for (int i = 0; i < officialCandidates.size(); i++) {
             Float ratioCandidate = ((float) voteCountTo.getScoresByCandidate().getOrDefault(officialCandidates.get(i),0)) / officialCandidates.size() * 100;
-            rationByCandidate.put(officialCandidates.get(i), ratioCandidate);
+            ratioByCandidate.put(officialCandidates.get(i), ratioCandidate);
         }
 
         float blankResult = ((float) voteCountTo.getNbBlankVotes() * 100) / voteCountTo.getNbVotes();
@@ -58,11 +57,11 @@ public class ElectionsWithDistrict implements Elections {
         df.setMaximumFractionDigits(2);
         float abstentionResult = 100 - ((float) voteCountTo.getNbVotes() * 100 / voteCountTo.getNbElectors());
 
-        //return electionsResults.displayResults(resultsTO);
+       // return electionsResults.displayResults(resultsTO);
 
         Map<String, String> results = new HashMap<>();
         for (int i = 0; i < officialCandidates.size(); i++) {
-            results.put(officialCandidates.get(i), String.format(Locale.FRENCH, "%.2f%%", rationByCandidate.get(officialCandidates.get(i))));
+            results.put(officialCandidates.get(i), String.format(Locale.FRENCH, "%.2f%%", ratioByCandidate.get(officialCandidates.get(i))));
         }
         results.put("Blank", String.format(Locale.FRENCH, "%.2f%%", blankResult));
         results.put("Null", String.format(Locale.FRENCH, "%.2f%%", nullResult));

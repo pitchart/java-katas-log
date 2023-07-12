@@ -1,0 +1,5 @@
+Abstention : 0,00% 
+Blank : 22,22% 
+Jerry : 66,67%
+Johnny : 33,33%
+Null : 22,22% 
